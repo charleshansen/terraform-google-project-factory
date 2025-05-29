@@ -90,6 +90,7 @@ spec:
       - name: org_id
         description: The organization ID.
         varType: string
+        global: true # made up, indicates the variable is required, but it is ok if you just leave it to reference the global variable
       - name: domain
         description: The domain name (optional).
         varType: string
@@ -114,10 +115,17 @@ spec:
         description: The ID of the billing account to associate this project with
         varType: string
         required: true
+        global: true # made up, indicates the variable is required, but it is ok if you just leave it to reference the global variable
       - name: folder_id
         description: The ID of a folder to host this project
         varType: string
         defaultValue: ""
+        connections:
+          - source:
+              source: github.com/charleshansen/terraform-google-resource-hierarchy  # also made up, we don't use resource-hierarchy today, but could
+              version: "*"
+            spec:
+              outputExpr: folder_map["${var.folder_name}"].id  # this is using made-up outputExpr interpolation syntax
       - name: group_name
         description: A group to control the project by being assigned group_role (defaults to project editor)
         varType: string
@@ -313,6 +321,17 @@ spec:
         description: The deletion policy for the project.
         varType: string
         defaultValue: PREVENT
+      - name: depends_on
+        description: modules that must run before this one
+        varType: list(string)
+        defaultValue: []
+        connections:
+        - source: github.com/charleshansen/terraform-google-resource-hierarchy
+            version: "*"
+          spec:
+              outputExpr: folder_map["${var.folder_name}"].id  # this is using made-up outputExpr interpolation syntax
+              inputPath: env_vars
+
     outputs:
       - name: api_s_account
         description: API service account email
